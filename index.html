@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff8f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#181818" media="(prefers-color-scheme: dark)">
+  <script>
+    var t = "light"; try { t = localStorage.getItem("foodagent.theme") || "light"; } catch (e) { /* sem storage */ } if (t !== "auto") document.documentElement.dataset.theme = t === "dark" ? "dark" : "light";
+  </script>
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="FoodAgent">
+  <title>FoodAgent</title>
+  <meta name="description" content="Descubra restaurantes próximos conversando com um agente de IA.">
+  <link rel="preload" href="fonts/bricolage-grotesque-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="img/hero-bonbons.jpg" as="image" fetchpriority="high">
+  <link rel="modulepreload" href="js/app.js">
+  <link rel="modulepreload" href="js/api.js">
+  <link rel="modulepreload" href="js/ui.js">
+  <link rel="modulepreload" href="js/location.js">
+  <link rel="modulepreload" href="js/wallet.js">
+  <link rel="modulepreload" href="js/theme.js">
+  <link rel="modulepreload" href="js/sidebar.js">
+  <link rel="modulepreload" href="js/shopping.js">
+  <link rel="modulepreload" href="js/security.js">
+  <link rel="modulepreload" href="js/restaurants.js">
+  <link rel="modulepreload" href="js/orders.js">
+  <link rel="modulepreload" href="js/home.js">
+  <link rel="modulepreload" href="js/history.js">
+  <link rel="modulepreload" href="js/delivery.js">
+  <link rel="modulepreload" href="js/chat.js">
+  <link rel="modulepreload" href="js/auth.js">
+  <link rel="modulepreload" href="js/addresses.js">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/screens.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍽️%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <div class="app is-home" id="app">
+    <aside class="sidebar" id="sidebar" aria-label="Histórico e menu">
+      <div class="side-inner">
+        <div class="side-head">
+          <div class="brand"><span class="brand-mark" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle></svg></span><span class="brand-name">Food<b>Agent</b></span></div>
+          <div class="side-tools">
+            <button class="icon-btn" id="history-search-btn" type="button" aria-label="Buscar nas conversas" title="Buscar nas conversas" aria-expanded="false" aria-controls="history-search-row"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+            <button class="icon-btn side-collapse" id="sidebar-collapse" type="button" aria-controls="sidebar" aria-label="Recolher barra lateral" title="Recolher barra lateral" aria-expanded="true"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="15" rx="3.5"/><path d="M9.5 4.5v15"/></svg></button>
+          </div>
+        </div>
+        <div class="hist-search" id="history-search-row" hidden>
+          <span class="hist-search-ico" aria-hidden="true"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></span>
+          <input id="history-search" type="search" placeholder="Buscar nas conversas…" aria-label="Buscar nas conversas" autocomplete="off" maxlength="80">
+        </div>
+
+        <nav class="side-nav" aria-label="Ações">
+          <button class="side-item" id="new-chat" type="button"><span class="si-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"></path></svg></span><span class="si-text">Novo chat</span></button>
+        </nav>
+
+        <nav class="side-orders-box" aria-label="Meus pedidos">
+          <h2 class="side-title">Meus pedidos</h2>
+          <button class="side-item" id="side-orders" type="button" data-open-orders="all"><span class="si-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"></path><path d="M9 8h6M9 12h6"></path></svg></span><span class="si-text">Todos os pedidos</span><svg class="si-chev" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+          <button class="side-item" type="button" data-open-orders="month"><span class="si-ico" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></span><span class="si-text">Por mês</span><svg class="si-chev" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"></path></svg></button>
+        </nav>
+
+        <nav class="side-history" aria-label="Histórico de conversas">
+          <h2 class="side-title">Recentes</h2>
+          <ul class="hist-list" id="history-list"></ul>
+          <p class="side-empty" id="history-empty">Suas conversas aparecerão aqui. Elas ficam salvas só neste aparelho.</p>
+        </nav>
+
+        <div class="side-foot">
+          <button class="side-item" id="install-app" type="button" hidden><span class="si-ico" aria-hidden="true">📲</span><span class="si-text">Instalar app</span></button>
+
+        </div>
+      </div>
+    <nav class="side-rail" id="side-rail" aria-label="Menu compacto">
+      <button class="rail-btn rail-logo" id="rail-expand" type="button" aria-controls="sidebar" aria-label="Expandir barra lateral" title="Expandir barra lateral"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button>
+      <button class="rail-btn" id="rail-new" type="button" aria-label="Novo chat" title="Novo chat"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 00-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg></button>
+      <button class="rail-btn" id="rail-search" type="button" aria-controls="history-search-row" aria-expanded="false" aria-label="Buscar nas conversas" title="Buscar nas conversas"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
+      <button class="rail-btn" id="rail-chats" type="button" aria-label="Conversas recentes" title="Conversas recentes"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 01-11.6 7.1L4 20l1-4.6A8 8 0 1121 12z"/></svg></button>
+      <button class="rail-btn" id="rail-orders" type="button" aria-label="Meus pedidos" title="Meus pedidos"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></button>
+      <button class="rail-btn" id="rail-month" type="button" aria-label="Pedidos por mês" title="Pedidos por mês"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></button>
+      <button class="rail-btn rail-avatar" id="rail-avatar" type="button" aria-label="Meu perfil" title="Meu perfil" hidden></button>
+    </nav>
+    </aside>
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <main class="chat-col">
+      <header class="topbar">
+        <div class="top-left">
+          <button class="round-btn only-mobile" id="sidebar-toggle" data-sidebar-toggle type="button" aria-label="Expandir barra lateral" aria-controls="sidebar" aria-expanded="false">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"></rect><path d="M9 4v16"></path></svg>
+          </button>
+          <div class="brand topbar-brand">
+            <span class="brand-mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="4"></circle></svg></span>
+            <span class="brand-name">Food<b>Agent</b></span>
+          </div>
+        </div>
+
+        <button class="loc-chip" id="loc-chip" type="button">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+          <span id="loc-label">Definir localização</span>
+        </button>
+
+        <div class="top-actions">
+          <button class="round-btn wallet-btn" id="wallet-open" type="button" aria-haspopup="dialog" aria-label="Moedas FoodAgent: entrar para consultar" title="Moedas FoodAgent · 1 moeda = R$ 1">
+            <span class="food-coin" aria-hidden="true">C</span><span id="wallet-count">0</span>
+          </button>
+          <button class="round-btn cart-btn" id="cart-open" type="button" aria-haspopup="dialog" aria-label="Abrir carrinho">
+            <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 7h12l-1 13H7L6 7zM9 7a3 3 0 016 0"></path></svg>
+            <span class="cart-count" id="cart-count" hidden>0</span>
+          </button>
+          <div id="top-account-slot" class="top-account-slot">
+            <div class="account-zone" id="account-zone">
+              <span class="account-status" id="account-status" role="status" hidden></span>
+              <button class="top-login" id="auth-open" type="button">Entrar</button>
+              <div class="account" id="account" hidden>
+                <div class="account-menu" id="account-menu" role="menu" hidden>
+                  <button class="menu-item" id="profile-open" type="button" role="menuitem"><span class="mi-ico"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/></svg></span> Perfil</button>
+                  <button class="menu-item settings-open" id="settings-open" type="button" role="menuitem"><span class="mi-ico"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></span> Configurações</button>
+                  <button class="menu-item" id="auth-logout" type="button" role="menuitem" hidden><span class="mi-ico"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg></span> Sair</button>
+                </div>
+                <button class="user-card" id="account-trigger" type="button" aria-haspopup="menu" aria-expanded="false" aria-label="Menu da conta">
+                  <span class="avatar-circle" id="account-avatar" aria-hidden="true">👤</span>
+                  <span class="user-info">
+                    <span class="user-name"><span id="account-name" hidden></span><span id="account-guest">Visitante</span></span>
+                    <small class="user-sub" id="account-sub">Não conectado</small>
+                  </span>
+                  <span class="user-more" aria-hidden="true">⋯</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+      <span class="mode-badge" id="mode-badge" hidden></span>
+
+      <section class="messages" id="messages" aria-live="polite">
+        <div class="welcome" id="welcome">
+          <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-copy">
+              <h1 id="hero-title">O que você quer <span class="hl">comer hoje?</span></h1>
+              <p class="hero-sub"><span class="sub-long">Diga o que está com vontade. Eu encontro os melhores restaurantes perto de você e monto o pedido.</span><span class="sub-short">Diga o que está com vontade. Eu encontro e monto o pedido.</span></p>
+
+              <div id="composer-slot" class="composer-slot">
+                <div class="composer-dock" id="composer-dock">
+                  <div class="composer-wrap" id="composer-wrap">
+                    <form class="composer" id="composer" autocomplete="off">
+                      <textarea id="input" rows="1" maxlength="1000" placeholder="Ex: pizza para 2, até R$ 80, sem cebola" aria-label="O que você quer comer hoje?"></textarea>
+                      <button type="submit" id="send" class="send" aria-label="Enviar pedido">
+                        <svg aria-hidden="true" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"></path></svg>
+                      </button>
+                    </form>
+                    <div class="mode-row" role="group" aria-label="Preferências do pedido">
+                      <button class="mode-chip" type="button" data-mode="perto" aria-pressed="true">
+                        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                        Perto de mim
+                      </button>
+                      <button class="mode-chip" type="button" data-mode="rapido" aria-pressed="false">
+                        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+                        Entrega rápida
+                      </button>
+                      <button class="mode-chip" type="button" data-mode="avaliado" aria-pressed="false">
+                        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>
+                        Bem avaliado
+                      </button>
+                    </div>
+                  </div>
+                  <p class="access-hint muted" id="access-hint" role="status">Entre na sua conta e defina a localização para buscar restaurantes.</p>
+                  <p class="legal">O FoodAgent usa IA e pode cometer erros. Confira os dados antes de ir ao local.</p>
+                </div>
+              </div>
+
+              <div class="examples">
+                <div class="eyebrow">Experimente pedir assim</div>
+                <div class="example-row">
+                  <button class="example-chip" type="button" data-send="Pizza para 2 por até R$ 80">Pizza para 2 por até R$ 80</button>
+                  <button class="example-chip" type="button" data-send="Algo leve, entrega em 30 min">Algo leve, entrega em 30 min</button>
+                  <button class="example-chip" type="button" data-send="Hambúrguer artesanal sem cebola">Hambúrguer artesanal sem cebola</button>
+                </div>
+              </div>
+              <section class="active-orders-home" id="home-active-orders" aria-labelledby="home-active-orders-title" hidden>
+                <h2 id="home-active-orders-title">Pedidos em andamento</h2>
+                <div class="active-orders-list" id="home-active-orders-list"></div>
+              </section>
+            </div>
+
+            <div class="hero-visual hero-promotion" aria-hidden="false">
+              <div class="hero-glow" aria-hidden="true"></div>
+              <div class="hero-art"><img id="gift-hero-image" src="img/hero-bonbons.jpg" alt="Duas opções de bombom: Lacta Oreo ou Serenata de Amor" width="640" height="640" decoding="async" fetchpriority="high"></div>
+              <div class="hero-bubble">
+                <span class="hb-name">FoodAgent</span>
+                <span class="hb-text" id="gift-hero-bubble">Suas 10 moedas de boas-vindas valem 1 bombom por pessoa. Duas opções: Lacta Oreo ou Serenata de Amor!</span>
+              </div>
+              <button class="hero-card" id="gift-open" type="button" aria-label="Resgatar 1 bombom por pessoa por 10 moedas. Opções: Lacta Oreo ou Serenata de Amor, com entrega pela equipe FoodAgent">
+                <div class="hc-top">
+                  <span class="hc-free">Brinde de boas-vindas</span>
+                </div>
+                <div class="hc-name"><span class="hc-title" id="gift-hero-title">1 bombom por pessoa</span><span class="hc-store" id="gift-hero-subtitle">Lacta Oreo ou Serenata de Amor</span></div>
+                <div class="hc-bottom"><span class="hc-price">10 moedas</span><span class="hc-order" id="gift-hero-action">Resgatar</span></div>
+              </button>
+            </div>
+          </section>
+
+          <section class="dishes" aria-labelledby="dishes-title">
+            <div class="section-head">
+              <h2 id="dishes-title">Pedidos que dão <span class="hl-amber">água na boca</span></h2>
+              <span class="section-hint">Toque para pedir do seu jeito</span>
+            </div>
+            <div class="dish-grid">
+              <button class="dish-card" type="button" data-fill="Quero um cheeseburger duplo">
+                <span class="dish-art"><img src="img/dish-burger.jpg" alt="Hambúrguer artesanal com queijo cheddar, carne e alface" loading="lazy" style="object-position:50% 45%"><span class="dish-tag">Mais pedido</span></span>
+                <span class="dish-body">
+                  <span class="dish-name">Cheeseburger duplo</span>
+                  <span class="dish-store">Casa do Smash</span>
+                  <span class="dish-meta"><span class="dish-rating"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>4,8</span><span>25–35 min</span><span class="dish-price">R$ 38,90</span></span>
+                </span>
+              </button>
+              <button class="dish-card" type="button" data-fill="Sushi variado bem avaliado">
+                <span class="dish-art"><img src="img/dish-sushi.jpg" alt="Sushi temari variado e uma peça de salmão nos hashis" loading="lazy" style="object-position:50% 68%"><span class="dish-tag">Entrega grátis</span></span>
+                <span class="dish-body">
+                  <span class="dish-name">Temari variado</span>
+                  <span class="dish-store">Sakura Express</span>
+                  <span class="dish-meta"><span class="dish-rating"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>4,9</span><span>30–40 min</span><span class="dish-price">R$ 69,90</span></span>
+                </span>
+              </button>
+              <button class="dish-card" type="button" data-fill="Quero comer pizza">
+                <span class="dish-art"><img src="img/dish-margherita.jpg" alt="Pizza margherita com tomate-cereja e manjericão" loading="lazy" style="object-position:50% 50%"><span class="dish-tag">Forno a lenha</span></span>
+                <span class="dish-body">
+                  <span class="dish-name">Pizza Margherita</span>
+                  <span class="dish-store">Forno Vivo</span>
+                  <span class="dish-meta"><span class="dish-rating"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>4,7</span><span>25–35 min</span><span class="dish-price">R$ 54,90</span></span>
+                </span>
+              </button>
+              <button class="dish-card" type="button" data-fill="Bowl de frutas com granola">
+                <span class="dish-art"><img src="img/dish-bowl.jpg" alt="Bowl de frutas com banana, morango, mirtilo e granola" loading="lazy" style="object-position:50% 42%"><span class="dish-tag">Novo</span></span>
+                <span class="dish-body">
+                  <span class="dish-name">Bowl de frutas 500 ml</span>
+                  <span class="dish-store">Tropical Bowl</span>
+                  <span class="dish-meta"><span class="dish-rating"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"></path></svg>4,8</span><span>15–25 min</span><span class="dish-price">R$ 24,90</span></span>
+                </span>
+              </button>
+            </div>
+          </section>
+
+          <p class="legal legal-home">O FoodAgent usa IA e pode cometer erros. Confira os dados antes de ir ao local.</p>
+        </div>
+      </section>
+    </main>
+
+    <aside class="panel" id="panel" aria-label="Restaurantes encontrados" aria-hidden="true">
+      <header class="panel-head">
+        <div>
+          <h2 id="panel-title">Restaurantes</h2>
+          <p class="panel-sub" id="panel-sub"></p>
+        </div>
+        <button class="icon-btn" id="panel-close" type="button" aria-label="Fechar painel">✕</button>
+      </header>
+      <div class="res-summary" id="res-summary" hidden></div>
+      <div class="res-chips chip-row" id="res-chips"></div>
+      <div class="panel-notes" id="panel-notes"></div>
+      <div class="panel-body" id="panel-list"></div>
+      <footer class="panel-foot" id="panel-foot"></footer>
+    </aside>
+  </div>
+
+  <dialog class="screen account-screen gift-screen" id="gift-dialog" aria-labelledby="gift-title">
+    <form class="screen-form" id="gift-form">
+      <header class="screen-head">
+        <button type="button" class="back-btn" id="gift-close" aria-label="Fechar brinde"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="gift-title">Seu bombom de boas-vindas</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <div class="screen-card gift-intro">
+          <span class="food-coin food-coin-large" aria-hidden="true">C</span>
+          <div><strong id="gift-intro-title">1 bombom por 10 moedas</strong><p class="muted" id="gift-intro-text">Cada pessoa recebe apenas 1 bombom. Duas opções: Lacta Oreo ou Serenata de Amor. Um resgate por conta, entregue pela equipe FoodAgent, sem taxa de entrega.</p></div>
+        </div>
+        <div id="gift-fields" class="auth-form">
+          <fieldset class="gift-variants"><legend>Escolha seu bombom</legend>
+            <label class="gift-variant">
+              <span class="dish-thumb"><img src="img/gift-lacta-oreo.jpg" alt="" width="160" height="160" loading="lazy" decoding="async"></span>
+              <span class="gift-variant-name">Lacta Oreo</span>
+              <span class="gift-variant-end"><span class="gift-variant-price">10 moedas</span><input type="radio" name="gift-variant" value="lacta-oreo" checked required></span>
+            </label>
+            <label class="gift-variant">
+              <span class="dish-thumb"><img src="img/gift-serenata-de-amor.jpg" alt="" width="160" height="160" loading="lazy" decoding="async"></span>
+              <span class="gift-variant-name">Serenata de Amor</span>
+              <span class="gift-variant-end"><span class="gift-variant-price">10 moedas</span><input type="radio" name="gift-variant" value="serenata-de-amor" required></span>
+            </label>
+          </fieldset>
+        </div>
+        <div class="screen-card gift-confirmed" id="gift-confirmed" hidden><h3 id="gift-confirmed-title">Brinde solicitado!</h3><p id="gift-confirmed-address"></p><p class="muted" id="gift-confirmed-note"></p></div>
+        <p class="loc-error" id="gift-error" role="alert" hidden></p>
+      </div>
+      <footer class="screen-foot"><button type="submit" class="cta" id="gift-submit">Adicionar à sacola · 10 moedas</button></footer>
+    </form>
+  </dialog>
+
+  <dialog class="screen account-screen loc-screen" id="loc-dialog" aria-labelledby="loc-title">
+    <form method="dialog" class="screen-form" id="loc-form-close">
+      <header class="screen-head">
+        <button class="back-btn" value="cancel" formnovalidate aria-label="Fechar"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="loc-title">Onde entregar?</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <section class="screen-card loc-search-panel" aria-label="Buscar endereço de entrega">
+        <div class="search-field">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+          <input type="text" id="loc-address" placeholder="Buscar rua, bairro ou CEP" maxlength="200" aria-label="Endereço">
+          <button type="button" class="search-go" id="loc-search">Buscar</button>
+        </div>
+        <button type="button" class="outline-btn" id="loc-browser">
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path><circle cx="12" cy="12" r="8"></circle></svg>
+          Usar minha localização atual
+        </button>
+        <div class="map-art" aria-hidden="true">
+          <svg viewBox="0 0 320 150" preserveAspectRatio="xMidYMid slice"><rect width="320" height="150" fill="var(--map-bg)"></rect><path d="M-10 40 L330 70 M-10 112 L330 96 M70 -10 L96 160 M200 -10 L176 160" stroke="var(--map-road)" stroke-width="14" stroke-linecap="round" fill="none"></path><path d="M120 -10 L150 160" stroke="var(--map-road)" stroke-width="6" fill="none"></path></svg>
+          <span class="map-pin"><svg width="34" height="34" viewBox="0 0 24 24" fill="var(--accent)" stroke="#fff" stroke-width="1.5"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5" fill="#fff"></circle></svg></span>
+        </div>
+        <div class="loc-result" id="loc-result" hidden>
+          <p class="loc-result-line" id="loc-result-line"></p>
+          <div class="loc-address-fields">
+            <label class="loc-field" for="loc-street">Rua, bairro e cidade
+              <input id="loc-street" type="text" maxlength="200" autocomplete="address-line1" placeholder="Confira ou corrija o endereço encontrado">
+            </label>
+            <label class="loc-field" for="loc-number">Número da casa ou prédio
+              <input id="loc-number" type="text" maxlength="20" placeholder="Ex.: 120 ou 120A">
+            </label>
+            <label class="loc-field" for="loc-complement">Apartamento, bloco ou complemento (opcional)
+              <input id="loc-complement" type="text" maxlength="100" autocomplete="address-line2" placeholder="Ex.: apto 302, bloco B, fundos">
+            </label>
+          </div>
+          <p class="muted">Número e complemento serão salvos para a entrega. A posição no mapa pode ser aproximada.</p>
+          <div class="chip-row" role="group" aria-label="Salvar como">
+            <button type="button" class="pick-chip" data-addr-label="Casa" aria-pressed="true">Casa</button>
+            <button type="button" class="pick-chip" data-addr-label="Trabalho" aria-pressed="false">Trabalho</button>
+            <button type="button" class="pick-chip" data-addr-label="Outro" aria-pressed="false">Outro</button>
+          </div>
+        </div>
+        <div id="loc-demo" hidden>
+          <div class="loc-or">modo demonstração: escolha uma localização de teste</div>
+          <select id="loc-demo-select" aria-label="Localização de teste"></select>
+        </div>
+        <p class="loc-error" id="loc-error" role="alert" hidden></p>
+        </section>
+        <section class="screen-card loc-saved-panel" aria-labelledby="loc-saved-title">
+        <h3 class="screen-section" id="loc-saved-title">Endereços salvos</h3>
+        <ul class="addr-list" id="loc-saved"></ul>
+        <p class="muted" id="loc-saved-empty">Nenhum endereço salvo ainda. Busque um endereço acima e confirme para salvar.</p>
+        </section>
+      </div>
+      <footer class="screen-foot">
+        <button type="button" class="cta" id="loc-confirm" disabled>Confirmar endereço</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog class="screen auth-screen" id="auth-dialog" aria-labelledby="auth-title">
+    <div class="screen-form auth-content">
+      <button class="back-btn auth-close-btn" id="auth-close" type="button" aria-label="Fechar cadastro"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"></path></svg></button>
+      <div class="screen-body auth-body">
+        <div class="auth-photos" aria-hidden="true">
+          <img loading="lazy" decoding="async" src="img/dish-burger.jpg" alt="" style="object-position:50% 45%">
+          <img loading="lazy" decoding="async" src="img/dish-sushi.jpg" alt="" style="object-position:50% 68%">
+          <img loading="lazy" decoding="async" src="img/dish-margherita.jpg" alt="">
+        </div>
+        <div class="auth-heading">
+          <div>
+            <h2 class="sr-only" id="auth-title">Bem-vindo ao FoodAgent</h2>
+            <p class="auth-headline" aria-hidden="true">Peça comida falando <span>do seu jeito</span></p>
+            <p class="muted" id="auth-description">Entre na sua conta para continuar.</p>
+          </div>
+        </div>
+        <div class="auth-tabs sr-only" role="group" aria-label="Acesso à conta">
+          <button class="btn" id="auth-tab-login" type="button" aria-pressed="true">Entrar</button>
+          <button class="btn" id="auth-tab-register" type="button" aria-pressed="false">Criar conta</button>
+        </div>
+        <p class="muted" id="auth-loading" role="status" hidden>Carregando…</p>
+        <form class="auth-form" id="auth-form">
+          <fieldset id="auth-fields">
+            <div id="auth-name-field" hidden>
+              <label for="auth-name">Nome</label>
+              <input id="auth-name" name="name" autocomplete="name" minlength="2" maxlength="100" placeholder="Como podemos chamar você?">
+            </div>
+            <label for="auth-email">E-mail</label>
+            <input id="auth-email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="voce@exemplo.com" required>
+            <label for="auth-password">Senha</label>
+            <div class="password-field">
+              <input id="auth-password" name="password" type="password" autocomplete="current-password" maxlength="128" required aria-describedby="auth-password-hint">
+              <button type="button" class="show-pass" id="auth-show-password" aria-pressed="false">Mostrar</button>
+            </div>
+            <p class="muted" id="auth-password-hint">Use a senha da sua conta FoodAgent.</p>
+            <button class="cta" id="auth-submit" type="submit">Entrar</button>
+          </fieldset>
+        </form>
+        <div class="auth-google" id="auth-google-section" hidden>
+          <div class="loc-or">ou</div>
+          <div id="auth-google-button"></div>
+          <p class="muted">No primeiro acesso, sua conta é criada automaticamente.</p>
+        </div>
+        <p class="muted" id="auth-google-unavailable" hidden>O acesso com Google ainda não está disponível. Você pode criar uma conta com e-mail.</p>
+        <div class="email-code" id="auth-code" hidden>
+          <p class="muted" id="auth-code-description"></p>
+          <form class="auth-form" id="auth-code-form">
+            <fieldset id="auth-code-fields">
+              <label for="auth-code-input">Código de verificação</label>
+              <input id="auth-code-input" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="000000" required aria-describedby="auth-code-status">
+              <button class="cta" type="submit">Confirmar código</button>
+            </fieldset>
+          </form>
+          <p class="muted" id="auth-code-status" role="status"></p>
+          <div class="row code-actions">
+            <button class="btn" id="auth-code-resend" type="button">Reenviar código</button>
+            <button class="btn ghost" id="auth-code-cancel" type="button">Voltar ao login</button>
+          </div>
+        </div>
+        <p class="loc-error" id="auth-error" role="alert" hidden></p>
+        <p class="auth-switch-line muted"><span id="auth-switch-text">Não tem conta?</span> <button type="button" class="link-btn" id="auth-switch">Criar conta</button></p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="screen account-screen wallet-screen" id="wallet-dialog" aria-labelledby="wallet-title">
+    <div class="screen-form">
+      <header class="screen-head">
+        <button class="back-btn" id="wallet-close" type="button" aria-label="Fechar carteira"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="wallet-title">Moedas FoodAgent</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+      <section class="screen-card wallet-summary" aria-label="Saldo de moedas">
+      <h3 class="screen-section">Saldo disponível</h3>
+      <div class="wallet-balance"><span class="food-coin food-coin-large" aria-hidden="true">C</span><strong id="wallet-balance">—</strong><span>moedas</span></div>
+      <p class="wallet-rate">1 moeda = R$ 1,00</p>
+      <p class="muted wallet-welcome">Você ganha 10 moedas de boas-vindas no primeiro acesso à sua conta.</p>
+      <p class="muted wallet-checkout-message" id="wallet-checkout-message" role="status" hidden></p>
+      </section>
+      <form id="wallet-form" autocomplete="off">
+        <section class="screen-card wallet-recharge" aria-labelledby="wallet-recharge-title">
+        <h3 class="screen-section" id="wallet-recharge-title">Recarregar moedas</h3>
+        <label class="wallet-label" for="wallet-amount">Quanto quer recarregar?</label>
+        <div class="wallet-amount-wrap"><span>R$</span><input id="wallet-amount" type="number" min="1" max="10000" step="1" value="10" required inputmode="numeric" aria-describedby="wallet-conversion"></div>
+        <div class="wallet-presets" role="group" aria-label="Valores de recarga">
+          <button type="button" class="btn" data-wallet-amount="10">R$ 10</button>
+          <button type="button" class="btn" data-wallet-amount="25">R$ 25</button>
+          <button type="button" class="btn" data-wallet-amount="50">R$ 50</button>
+          <button type="button" class="btn" data-wallet-amount="100">R$ 100</button>
+        </div>
+        <p id="wallet-conversion" class="muted" hidden></p>
+        </section>
+        <section class="screen-card wallet-payment" aria-labelledby="wallet-payment-title">
+        <h3 class="screen-section" id="wallet-payment-title">Pagamento</h3>
+        <div class="wallet-methods" role="group" aria-label="Forma de pagamento">
+          <button type="button" class="btn" id="wallet-pix-tab" aria-pressed="true">Pix</button>
+          <button type="button" class="btn" id="wallet-card-tab" aria-pressed="false">Cartão</button>
+        </div>
+        <div id="wallet-pix">
+          <p class="wallet-pix-caption">QR Code</p>
+          <img loading="lazy" decoding="async" class="wallet-qr" src="icons/pix-demo.svg" width="256" height="256" alt="QR Code fictício de demonstração, sem pagamento real">
+          <label class="wallet-label" for="wallet-pix-key">Chave Pix fictícia</label>
+          <div class="wallet-copy"><input id="wallet-pix-key" value="7c9e2a41-8b36-4f05-a1d7-6e3b902fc854" readonly><button class="btn" type="button" id="wallet-copy">Copiar</button></div>
+          <button class="btn primary wallet-pay" type="submit" id="wallet-pix-pay" aria-live="polite">Pagamento Pix</button>
+        </div>
+        <fieldset id="wallet-card" hidden disabled>
+          <label class="wallet-label" for="wallet-card-number">Número do cartão</label>
+          <input id="wallet-card-number" inputmode="numeric" maxlength="23" placeholder="0000 0000 0000 0000" required>
+          <label class="wallet-label" for="wallet-card-name">Nome no cartão</label>
+          <input id="wallet-card-name" maxlength="100" placeholder="Nome completo" required>
+          <div class="wallet-card-row">
+            <div><label class="wallet-label" for="wallet-card-expiry">Validade</label><input id="wallet-card-expiry" inputmode="numeric" maxlength="5" placeholder="MM/AA" required></div>
+            <div><label class="wallet-label" for="wallet-card-cvv">CVV</label><input id="wallet-card-cvv" type="password" inputmode="numeric" maxlength="4" placeholder="123" required></div>
+          </div>
+          <button class="btn primary wallet-pay" type="submit" id="wallet-card-pay" disabled>Pagar</button>
+        </fieldset>
+        </section>
+      </form>
+      <p class="muted" id="wallet-status" role="status" hidden></p>
+      <p class="loc-error" id="wallet-error" role="alert" hidden></p>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="loc-dialog settings-dialog" id="settings-dialog" aria-labelledby="settings-title">
+    <div class="auth-content">
+      <div class="auth-heading">
+        <h2 id="settings-title">Configurações</h2>
+        <button class="icon-btn" id="settings-close" type="button" aria-label="Fechar configurações">✕</button>
+      </div>
+      <div class="settings-layout">
+        <nav class="settings-nav" aria-label="Seções das configurações">
+          <button class="btn settings-tab" type="button" data-settings-target="settings-appearance" role="tab" aria-selected="true" aria-current="page">Aparência</button>
+          <button class="btn settings-tab" type="button" data-settings-target="settings-security" role="tab" aria-selected="false">Segurança</button>
+        </nav>
+        <div class="settings-content">
+        <section class="settings-appearance" id="settings-appearance" role="tabpanel" aria-labelledby="appearance-title">
+          <h3 id="appearance-title">Aparência</h3>
+          <p class="muted">Escolha como o FoodAgent aparece para você. A escolha fica salva neste navegador.</p>
+          <div class="theme-cards" role="group" aria-label="Aparência">
+            <button type="button" class="theme-card" data-theme-choice="auto" aria-pressed="false">
+              <span class="theme-preview theme-auto" aria-hidden="true"><span class="tp-half light"><span class="tp"><span class="tp-top"><i class="tp-logo"></i><i class="tp-pill"></i><i class="tp-dot"></i></span><span class="tp-h"></span><span class="tp-h short"></span><span class="tp-box"><i></i><i class="go"></i></span><span class="tp-chips"><i class="on"></i><i></i><i></i></span></span></span><span class="tp-half dark"><span class="tp"><span class="tp-top"><i class="tp-logo"></i><i class="tp-pill"></i><i class="tp-dot"></i></span><span class="tp-h"></span><span class="tp-h short"></span><span class="tp-box"><i></i><i class="go"></i></span><span class="tp-chips"><i class="on"></i><i></i><i></i></span></span></span></span>
+              <span class="theme-info"><strong>Automático</strong><small>Segue o tema do seu sistema</small></span>
+              <span class="theme-check" aria-hidden="true">✓</span>
+            </button>
+            <button type="button" class="theme-card" data-theme-choice="light" aria-pressed="true">
+              <span class="theme-preview theme-light" aria-hidden="true"><span class="tp"><span class="tp-top"><i class="tp-logo"></i><i class="tp-pill"></i><i class="tp-dot"></i></span><span class="tp-h"></span><span class="tp-h short"></span><span class="tp-box"><i></i><i class="go"></i></span><span class="tp-chips"><i class="on"></i><i></i><i></i></span></span></span>
+              <span class="theme-info"><strong>Claro</strong><small>Fundo claro, ideal de dia</small></span>
+              <span class="theme-check" aria-hidden="true">✓</span>
+            </button>
+            <button type="button" class="theme-card" data-theme-choice="dark" aria-pressed="false">
+              <span class="theme-preview theme-dark" aria-hidden="true"><span class="tp"><span class="tp-top"><i class="tp-logo"></i><i class="tp-pill"></i><i class="tp-dot"></i></span><span class="tp-h"></span><span class="tp-h short"></span><span class="tp-box"><i></i><i class="go"></i></span><span class="tp-chips"><i class="on"></i><i></i><i></i></span></span></span>
+              <span class="theme-info"><strong>Escuro</strong><small>Fundo escuro, mais confortável à noite</small></span>
+              <span class="theme-check" aria-hidden="true">✓</span>
+            </button>
+          </div>
+        </section>
+        <section class="settings-security" id="settings-security" role="tabpanel" hidden aria-labelledby="security-title">
+          <h3 id="security-title">Segurança</h3>
+          <div id="security-guest">
+            <p class="muted">Entre na sua conta para gerenciar a segurança.</p>
+            <button class="btn primary" id="security-login" type="button">Entrar / Criar conta</button>
+          </div>
+          <div id="security-account" hidden>
+            <p class="muted security-email" id="security-email"></p>
+            <div class="security-card">
+              <div class="security-card-heading">
+                <div>
+                  <h4 id="security-toggle-label">Verificação em duas etapas por e-mail</h4>
+                  <span class="security-badge" id="security-status">Desativada</span>
+                </div>
+                <button class="security-switch" id="security-toggle" type="button" role="switch" aria-checked="false" aria-labelledby="security-toggle-label" aria-describedby="security-description"><span aria-hidden="true"></span></button>
+              </div>
+              <p class="muted" id="security-description">Receba um código no seu e-mail em todo novo login. O acesso à conta só será liberado após a confirmação.</p>
+              <p class="muted" id="security-unavailable" hidden>A verificação por e-mail ainda não está disponível. Tente novamente mais tarde.</p>
+            </div>
+            <div class="email-code" id="security-code" hidden>
+              <p class="muted" id="security-code-description"></p>
+              <form class="auth-form" id="security-code-form">
+                <fieldset id="security-code-fields">
+                  <label for="security-code-input">Código de confirmação</label>
+                  <input id="security-code-input" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" minlength="6" maxlength="6" placeholder="000000" required aria-describedby="security-code-status">
+                  <button class="btn primary" type="submit">Confirmar alteração</button>
+                </fieldset>
+              </form>
+              <p class="muted" id="security-code-status" role="status"></p>
+              <div class="row code-actions">
+                <button class="btn" id="security-code-resend" type="button">Reenviar código</button>
+                <button class="btn ghost" id="security-code-cancel" type="button">Cancelar alteração</button>
+              </div>
+            </div>
+            <div class="security-card password-card">
+              <h4>Alterar senha</h4>
+              <p class="muted" id="security-password-google" hidden>Sua conta usa o Google. Para trocar a senha, acesse a <a href="https://myaccount.google.com/security" target="_blank" rel="noopener noreferrer">segurança da Conta Google</a>.</p>
+              <form class="auth-form password-form" id="security-password-form">
+                <fieldset id="security-password-fields">
+                  <label for="security-current-password">Senha atual</label>
+                  <input id="security-current-password" name="current_password" type="password" autocomplete="current-password" minlength="1" maxlength="128" required>
+                  <label for="security-new-password">Nova senha</label>
+                  <input id="security-new-password" name="new_password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required aria-describedby="security-password-hint">
+                  <label for="security-confirm-password">Confirmar nova senha</label>
+                  <input id="security-confirm-password" name="confirm_password" type="password" autocomplete="new-password" minlength="8" maxlength="128" required>
+                  <p class="muted" id="security-password-hint">Use de 8 a 128 caracteres. Ao salvar, os outros acessos à sua conta serão encerrados.</p>
+                  <button class="btn primary" id="security-password-submit" type="submit">Salvar nova senha</button>
+                </fieldset>
+              </form>
+              <p class="muted password-note" id="security-password-pending" hidden>Conclua ou cancele a confirmação por e-mail antes de alterar a senha.</p>
+              <p class="muted security-message" id="security-password-message" role="status" hidden></p>
+              <p class="loc-error" id="security-password-error" role="alert" hidden></p>
+            </div>
+          </div>
+          <p class="muted security-message" id="security-message" role="status" hidden></p>
+          <p class="loc-error" id="security-error" role="alert" hidden></p>
+        </section>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/pwa.js"></script>
+  <dialog class="screen menu-screen" id="menu-dialog" aria-labelledby="menu-title">
+    <div class="screen-form">
+      <div class="screen-hero" id="menu-hero">
+        <img loading="lazy" decoding="async" id="menu-hero-img" src="img/dish-margherita.jpg" alt="">
+        <button class="back-btn float-left" id="menu-close" type="button" aria-label="Fechar cardápio"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <button class="back-btn float-right" id="menu-fav" type="button" aria-label="Favoritar restaurante" aria-pressed="false" hidden><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0112 7.6 4.3 4.3 0 0119.5 10c0 5.4-7.5 10-7.5 10z"></path></svg></button>
+      </div>
+      <div class="screen-body sheet">
+        <p class="menu-eyebrow">CARDÁPIO</p>
+        <h2 id="menu-title"></h2>
+        <p class="muted" id="menu-meta"></p>
+        <div class="chip-row" id="menu-chips"></div>
+        <p class="muted" id="menu-source" hidden></p>
+        <p class="muted" id="menu-readonly" role="status">Cardápio apenas para consulta. No momento, somente o bombom de boas-vindas pode ser resgatado.</p>
+        <p class="muted" id="menu-status" role="status" aria-live="polite" hidden></p>
+        <p class="loc-error" id="menu-error" role="alert" hidden></p>
+        <button class="btn" id="menu-retry" type="button" hidden>Tentar novamente</button>
+        <h3 class="screen-section">Mais pedidos</h3>
+        <div class="menu-list" id="menu-list"></div>
+        <p class="muted photo-note">Fotos ilustrativas; o prato servido pode ser diferente.</p>
+      </div>
+      <footer class="screen-foot">
+        <button class="cta bar-cta" id="menu-cart" type="button"><span>Ver sacola · <span id="menu-cart-count">0</span> <span id="menu-cart-word">itens</span></span><strong id="menu-cart-total">R$ 0,00</strong></button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="screen dish-screen" id="dish-dialog" aria-labelledby="dish-name">
+    <div class="screen-form">
+      <div class="screen-hero"><img loading="lazy" decoding="async" id="dish-img" src="img/dish-margherita.jpg" alt="">
+        <button class="back-btn float-left" id="dish-close" type="button" aria-label="Voltar ao cardápio"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+      </div>
+      <div class="screen-body sheet">
+        <h2 id="dish-name"></h2>
+        <p class="muted" id="dish-restaurant"></p>
+        <p id="dish-desc" class="dish-desc"></p>
+        <p class="dish-price-line" id="dish-price"></p>
+        <h3 class="screen-section">Observações</h3>
+        <div class="chip-row" role="group" aria-label="Sugestões de observação">
+          <button type="button" class="pick-chip" data-note="Sem cebola" aria-pressed="false">Sem cebola</button>
+          <button type="button" class="pick-chip" data-note="Sem pimenta" aria-pressed="false">Sem pimenta</button>
+          <button type="button" class="pick-chip" data-note="Sem talheres" aria-pressed="false">Sem talheres</button>
+        </div>
+        <textarea id="dish-note" rows="2" maxlength="200" placeholder="Adicione outra observação…" aria-label="Observações do prato"></textarea>
+        <p class="loc-error" id="dish-error" role="alert" hidden></p>
+      </div>
+      <footer class="screen-foot dish-foot">
+        <div class="stepper" role="group" aria-label="Quantidade">
+          <button type="button" id="dish-minus" aria-label="Diminuir quantidade">−</button>
+          <output id="dish-qty" aria-live="polite">1</output>
+          <button type="button" id="dish-plus" aria-label="Aumentar quantidade">+</button>
+        </div>
+        <button class="cta bar-cta" id="dish-add" type="button" disabled><span id="dish-add-label">Compra indisponível</span><strong id="dish-add-total">R$ 0,00</strong></button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="screen account-screen bag-screen shopping-dialog" id="shopping-dialog" aria-labelledby="shopping-title">
+    <div class="screen-form">
+      <header class="screen-head">
+        <button class="back-btn" id="shopping-close" type="button" aria-label="Fechar sacola"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="shopping-title">Sacola</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <div id="shopping-guest" hidden>
+          <p class="muted">Entre na sua conta para acessar a sacola.</p>
+          <button class="cta" id="shopping-login" type="button">Entrar / Criar conta</button>
+        </div>
+        <p class="muted" id="shopping-status" role="status" aria-live="polite" hidden></p>
+        <p class="loc-error" id="shopping-error" role="alert" hidden></p>
+        <button class="btn" id="shopping-retry" type="button" hidden>Tentar novamente</button>
+        <section id="shopping-active" class="bag-active" hidden aria-label="Pedidos em andamento"><div id="shopping-active-list"></div></section>
+        <div id="shopping-cart">
+          <div class="bag-list" id="shopping-items"></div>
+          <div id="bag-checkout" hidden>
+            <div class="bag-card" id="bag-address">
+              <span class="bag-ico" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></span>
+              <span class="bag-card-text"><small>Entregar em</small><strong id="bag-address-line">Escolha o endereço de entrega</strong><small id="bag-address-eta">25–35 min</small></span>
+              <button type="button" class="link-btn" id="bag-address-change">Trocar</button>
+            </div>
+            <div class="auth-form" id="bag-gift-fields" hidden>
+              <label for="bag-gift-address">Endereço completo para entrega</label>
+              <textarea id="bag-gift-address" minlength="8" maxlength="500" rows="2" required placeholder="Rua, número, prédio e apartamento"></textarea>
+              <label for="bag-gift-phone">Telefone com DDD</label>
+              <input id="bag-gift-phone" type="tel" autocomplete="tel" minlength="10" maxlength="20" pattern="[+0-9 ()-]{10,20}" required placeholder="(31) 99999-9999">
+              <p class="muted">1 brinde por pessoa. Entrega em 4 minutos, com acompanhamento do entregador.</p>
+            </div>
+            <h3 class="screen-section">Pagamento</h3>
+            <div class="pay-list" role="radiogroup" aria-label="Forma de pagamento">
+              <button type="button" class="pay-option" role="radio" aria-checked="false" data-pay="coins"><span class="pay-ico" aria-hidden="true"><span class="food-coin">C</span></span><span class="pay-text"><strong>Moedas FoodAgent</strong><small id="bag-coins-balance">Consulte seu saldo ao pagar</small></span><span class="pay-dot"></span></button>
+              <button type="button" class="pay-option" role="radio" aria-checked="true" data-pay="pix"><span class="pay-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3M21 14v.01M14 21h3M21 17v4"/></svg></span><span class="pay-text"><strong>Pix</strong><small>aprovação na hora</small></span><span class="pay-dot"></span></button>
+              <button type="button" class="pay-option" role="radio" aria-checked="false" data-pay="card"><span class="pay-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span><span class="pay-text"><strong>Cartão de crédito</strong></span><span class="pay-dot"></span></button>
+              <button type="button" class="pay-option" role="radio" aria-checked="false" data-pay="cash"><span class="pay-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2.5"/><circle cx="12" cy="12" r="2.8"/><path d="M6 12h.01M18 12h.01"/></svg></span><span class="pay-text"><strong>Dinheiro</strong><small>pagar ao entregador</small></span><span class="pay-dot"></span></button>
+            </div>
+            <dl class="bag-sum">
+              <div><dt>Subtotal</dt><dd id="bag-subtotal">R$ 0,00</dd></div>
+              <div><dt>Entrega</dt><dd class="free" id="bag-fee">Grátis</dd></div>
+              <div class="total"><dt>Total</dt><dd id="bag-total">R$ 0,00</dd></div>
+            </dl>
+            <p class="muted" id="shopping-summary"></p>
+          </div>
+        </div>
+      </div>
+      <footer class="screen-foot" id="bag-foot" hidden>
+        <button class="cta bar-cta" id="shopping-pay" type="button" disabled><span id="shopping-pay-label">Fazer pedido</span><strong id="shopping-pay-total">R$ 0,00</strong></button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="screen track-screen" id="track-dialog" aria-labelledby="track-title">
+    <div class="screen-form">
+      <header class="screen-head">
+        <button class="back-btn" id="track-close" type="button" aria-label="Fechar acompanhamento"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="track-title">Acompanhar pedido</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <div class="map-art track-map" aria-hidden="true">
+          <svg viewBox="0 0 320 170" preserveAspectRatio="xMidYMid slice"><rect width="320" height="170" fill="var(--map-bg)"></rect><path d="M-10 50 L330 80 M-10 124 L330 108 M80 -10 L104 180 M214 -10 L190 180" stroke="var(--map-road)" stroke-width="14" stroke-linecap="round" fill="none"></path><path d="M60 140 C 110 60, 200 150, 262 44" stroke="var(--accent)" stroke-width="3" fill="none" stroke-linecap="round"></path></svg>
+          <span class="map-dot rest">🍽</span><span class="map-dot home">⌂</span>
+        </div>
+        <div class="track-eta"><small>Chega em</small><strong id="track-eta">25–35 min</strong><p class="muted" id="track-meta"></p></div>
+        <ol class="timeline" id="track-steps"></ol>
+        <div class="bag-card track-summary" id="track-summary"></div>
+        <p class="loc-error" id="track-error" role="alert" hidden></p>
+      </div>
+      <footer class="screen-foot">
+        <button class="cta" id="track-received" type="button" disabled>Recebi meu pedido</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="screen orders-screen" id="orders-dialog" aria-labelledby="orders-title">
+    <div class="screen-form">
+      <header class="screen-head">
+        <button class="back-btn" id="orders-close" type="button" aria-label="Fechar histórico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="orders-title">Histórico</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <div class="seg" role="tablist" aria-label="Filtro do histórico">
+          <button type="button" class="seg-btn" role="tab" data-orders-tab="all" aria-selected="true" aria-pressed="true"><span class="seg-ico"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span><span>Todos</span><b class="seg-count" data-count="all"></b></button>
+          <button type="button" class="seg-btn" role="tab" data-orders-tab="month" aria-selected="false" aria-pressed="false"><span class="seg-ico"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><span>Por mês</span><b class="seg-count" data-count="month"></b></button>
+          <button type="button" class="seg-btn" role="tab" data-orders-tab="fav" aria-selected="false" aria-pressed="false"><span class="seg-ico"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-9.3-9.2C1.5 8.6 3.4 5 6.8 5c2 0 3.5 1.1 5.2 3 1.7-1.9 3.2-3 5.2-3 3.4 0 5.3 3.6 4.1 6.8C19.5 16.4 12 21 12 21z"/></svg></span><span>Favoritos</span><b class="seg-count" data-count="fav"></b></button>
+        </div>
+        <div class="months" id="orders-months" role="group" aria-label="Escolha o mês" hidden></div>
+        <div class="orders-summary" id="orders-summary" hidden></div>
+        <p class="muted" id="orders-status" role="status" hidden></p>
+        <div class="orders-list" id="orders-list"></div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="screen account-screen profile-screen" id="profile-dialog" aria-labelledby="profile-title">
+    <div class="screen-form">
+      <header class="screen-head">
+        <button class="back-btn" id="profile-close" type="button" aria-label="Fechar perfil"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"></path></svg></button>
+        <h2 id="profile-title">Perfil</h2>
+        <span class="head-spacer"></span>
+      </header>
+      <div class="screen-body">
+        <div class="profile-col">
+        <div class="profile-card">
+          <span class="avatar-circle big" id="profile-avatar" aria-hidden="true">👤</span>
+          <span class="profile-id"><strong id="profile-name"></strong><small id="profile-email"></small></span>
+        </div>
+        <div class="section-row"><h3 class="screen-section">Favoritos</h3><button type="button" class="link-btn" id="profile-fav-all">Ver todos</button></div>
+        <div class="fav-row" id="profile-favs"></div>
+        </div>
+        <div class="profile-col">
+        <ul class="profile-menu">
+          <li><button type="button" id="profile-addresses"><span class="pm-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Endereços salvos <small id="profile-addresses-sub"></small></button></li>
+          <li><button type="button" id="profile-settings"><span class="pm-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg></span> Configurações e segurança</button></li>
+          <li><button type="button" disabled><span class="pm-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="3"/><path d="M2 10h20"/></svg></span> Formas de pagamento <small>em breve</small></button></li>
+          <li><button type="button" disabled><span class="pm-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></span> Notificações <small>em breve</small></button></li>
+          <li><button type="button" disabled><span class="pm-ico"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-.9.6-1.5 1.1-1.5 2.2"/><path d="M12 17h.01"/></svg></span> Ajuda e suporte <small>em breve</small></button></li>
+        </ul>
+        <button type="button" class="outline-btn danger" id="profile-logout">Sair da conta</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog class="loc-dialog delivery-map-dialog" id="delivery-map-dialog" aria-labelledby="delivery-map-title">
+    <div class="auth-content">
+      <div class="auth-heading">
+        <h2 id="delivery-map-title">Entrega do pedido</h2>
+        <button class="icon-btn" id="delivery-map-close" type="button" aria-label="Fechar mapa">✕</button>
+      </div>
+      <p class="muted" id="delivery-map-address"></p>
+      <strong id="delivery-map-eta"></strong>
+      <p class="delivery-map-status muted" id="delivery-map-status" role="status"></p>
+      <div id="delivery-map" class="delivery-map" aria-label="Mapa da entrega"></div>
+      <div class="delivery-actions">
+        <button class="btn ghost" id="delivery-map-expand" type="button">Ampliar mapa</button>
+        <button class="btn ghost" id="delivery-map-retry" type="button" hidden>Tentar carregar mapa novamente</button>
+      </div>
+      <p class="muted delivery-footnote">Acompanhe a preparação do pedido e o trajeto do entregador.</p>
+    </div>
+  </dialog>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
